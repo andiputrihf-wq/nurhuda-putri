@@ -1,0 +1,1629 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Dikte Bertahap Digital - PTK Kelas 3 SD</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Confetti for rewarding student achievement -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .kids-font {
+            font-family: 'Fredoka', sans-serif;
+        }
+        /* Custom scrollbar for better visual quality */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col transition-colors duration-300">
+
+    <script>
+        // Data Bank Materi Dikte sesuai dokumen PTK Siklus I & II (diubah jadi let agar bisa diedit dinamis)
+        let bankMateri = {
+            siklus1: {
+                nama: "Siklus I (Pertemuan 1) - Penguatan Dasar",
+                tahap1: {
+                    nama: "Tahap 1: Kata Tunggal (Konsonan Ganda & Bunyi Khusus)",
+                    tipe: "Kata Tunggal",
+                    items: [
+                        { no: 1, dikte: "menyapu", kunci: "menyapu", catatan: "Sering salah menulis 'meny' menjadi 'me_ny' atau 'menapu'" },
+                        { no: 2, dikte: "tangga", kunci: "tangga", catatan: "Sering kehilangan huruf double 'g' (tanga)" },
+                        { no: 3, dikte: "belajar", kunci: "belajar", catatan: "Sering tertukar huruf 'r' di akhir" },
+                        { no: 4, dikte: "cermin", kunci: "cermin", catatan: "Memastikan penulisan vokal dan konsonan tengah tepat" },
+                        { no: 5, dikte: "khawatir", kunci: "khawatir", catatan: "Konsonan khusus 'kh' di awal kata" }
+                    ]
+                },
+                tahap2: {
+                    nama: "Tahap 2: Frasa Pendek (Gabungan Dua Kata)",
+                    tipe: "Frasa Pendek",
+                    items: [
+                        { no: 1, dikte: "membaca buku", kunci: "membaca buku", catatan: "Memastikan spasi antar kata ditulis dengan benar" },
+                        { no: 2, dikte: "semangka manis", kunci: "semangka manis", catatan: "Penulisan kata berakhiran sengau (ng)" },
+                        { no: 3, dikte: "sepeda baru", kunci: "sepeda baru", catatan: "Membedakan huruf b dan d secara visual" },
+                        { no: 4, dikte: "kamar mandi", kunci: "kamar mandi", catatan: "Pemisahan kata yang tepat dan konsisten" },
+                        { no: 5, dikte: "kelinci lompat", kunci: "kelinci lompat", catatan: "Penulisan huruf vokal 'i' dan 'o' pada suku kata tertutup" }
+                    ]
+                },
+                tahap3: {
+                    nama: "Tahap 3: Kalimat Sederhana (Fokus Huruf Kapital & Tanda Titik)",
+                    tipe: "Kalimat Sederhana",
+                    items: [
+                        { no: 1, dikte: "Ibu membeli buah jeruk di pasar.", kunci: "Ibu membeli buah jeruk di pasar.", catatan: "Huruf 'I' kapital di awal dan tanda titik (.) di akhir kalimat." },
+                        { no: 2, dikte: "Roni bermain bola di lapangan.", kunci: "Roni bermain bola di lapangan.", catatan: "Huruf 'R' kapital untuk nama orang, penulisan kata depan 'di lapangan' dipisah." }
+                    ]
+                }
+            },
+            siklus2: {
+                nama: "Siklus II (Pertemuan 2) - Tantangan Peningkatan",
+                tahap1: {
+                    nama: "Tahap 1: Kata Tunggal (Tingkat Lanjut)",
+                    tipe: "Kata Tunggal",
+                    items: [
+                        { no: 1, dikte: "nyanyian", kunci: "nyanyian", catatan: "Kombinasi bunyi 'ny' ganda dalam satu kata" },
+                        { no: 2, dikte: "pahlawan", kunci: "pahlawan", catatan: "Penulisan huruf 'h' di tengah kata secara jelas" },
+                        { no: 3, dikte: "plastik", kunci: "plastik", catatan: "Kluster konsonan awal (pl-)" },
+                        { no: 4, dikte: "istirahat", kunci: "istirahat", catatan: "Ketepatan jumlah suku kata vokal berurutan" },
+                        { no: 5, dikte: "kreatif", kunci: "kreatif", catatan: "Kata serapan berakhiran huruf 'f'" }
+                    ]
+                },
+                tahap2: {
+                    nama: "Tahap 2: Frasa Pendek (Tingkat Lanjut)",
+                    tipe: "Frasa Pendek",
+                    items: [
+                        { no: 1, dikte: "menjaga kebersihan", kunci: "menjaga kebersihan", catatan: "Penulisan imbuhan me- dan ke-an dengan benar" },
+                        { no: 2, dikte: "Hari Minggu", kunci: "Hari Minggu", catatan: "Penggunaan huruf kapital pada nama hari (Minggu)" },
+                        { no: 3, dikte: "sungai bersih", kunci: "sungai bersih", catatan: "Bunyi diftong 'ai' di akhir kata" },
+                        { no: 4, dikte: "kucing mengeong", kunci: "kucing mengeong", catatan: "Penggabungan imbuhan me- + kata dasar bersuara 'ngeong'" },
+                        { no: 5, dikte: "udara segar", kunci: "udara segar", catatan: "Penulisan vokal di awal kata dan konsonan penutup r" }
+                    ]
+                },
+                tahap3: {
+                    nama: "Tahap 3: Kalimat Sederhana (Tingkat Lanjut)",
+                    tipe: "Kalimat Sederhana",
+                    items: [
+                        { no: 1, dikte: "Di mana kamu membeli pensil itu?", kunci: "Di mana kamu membeli pensil itu?", catatan: "Kapital 'D' di awal kalimat, penulisan kata tanya 'Di mana', dan tanda tanya (?) di akhir." },
+                        { no: 2, dikte: "Ayah dan Budi pergi ke Kota Bandung.", kunci: "Ayah dan Budi pergi ke Kota Bandung.", catatan: "Kapital pada awal kalimat (Ayah), nama orang (Budi), dan nama geografi (Kota Bandung)." },
+                        { no: 3, dikte: "Wah, indah sekali pemandangan ini!", kunci: "Wah, indah sekali pemandangan ini!", catatan: "Penggunaan tanda seru (!), penggunaan koma (,) setelah kata seru 'Wah'." }
+                    ]
+                }
+            }
+        };
+
+        // State Manager
+        let appState = {
+            currentTab: 'proyektor', // 'proyektor', 'penilaian', 'data-ptk', 'panduan', 'kelola-kata'
+            siklusAktif: 'siklus1',
+            tahapAktif: 'tahap1',
+            itemIndex: 0,
+            tahapPembelajaran: 1, // 1: Dengar, 2: Tulis, 3: Konfirmasi/Evaluasi
+            audioSpeed: 0.55, // Lambat untuk kelas 3 SD
+            audioRepeatsLeft: 3,
+            isTimerRunning: false,
+            timerSeconds: 15,
+            timerIntervalId: null,
+            jawabanTerbuka: false,
+            currentTheme: 'mint', // 'mint', 'sky', 'cream', 'dark'
+            siswaList: [
+                { id: 1, nama: "Aditya Pratama", skorS1: { ejaan: 3, kapital: 4, tanda: 4, rapi: 3 }, skorS2: { ejaan: 4, kapital: 4, tanda: 4, rapi: 4 } },
+                { id: 2, nama: "Bunga Lestari", skorS1: { ejaan: 2, kapital: 3, tanda: 2, rapi: 3 }, skorS2: { ejaan: 3, kapital: 3, tanda: 3, rapi: 4 } },
+                { id: 3, nama: "Cahyo Utomo", skorS1: { ejaan: 1, kapital: 2, tanda: 1, rapi: 2 }, skorS2: { ejaan: 2, kapital: 3, tanda: 2, rapi: 3 } },
+                { id: 4, nama: "Dewi Sartika", skorS1: { ejaan: 3, kapital: 3, tanda: 3, rapi: 3 }, skorS2: { ejaan: 4, kapital: 4, tanda: 4, rapi: 4 } },
+                { id: 5, nama: "Eko Prasetyo", skorS1: { ejaan: 2, kapital: 2, tanda: 2, rapi: 2 }, skorS2: { ejaan: 3, kapital: 3, tanda: 3, rapi: 3 } }
+            ],
+            kalkulatorInput: {
+                ejaan: 4,
+                kapital: 4,
+                tanda: 4,
+                rapi: 4
+            }
+        };
+
+        // Theme colors configurations for Projector Mode
+        const themes = {
+            mint: {
+                bg: 'bg-emerald-50',
+                border: 'border-emerald-200',
+                text: 'text-emerald-800',
+                accent: 'bg-emerald-600 hover:bg-emerald-700',
+                cardBg: 'bg-white',
+                btnText: 'text-emerald-700'
+            },
+            sky: {
+                bg: 'bg-sky-50',
+                border: 'border-sky-200',
+                text: 'text-sky-800',
+                accent: 'bg-sky-600 hover:bg-sky-700',
+                cardBg: 'bg-white',
+                btnText: 'text-sky-700'
+            },
+            cream: {
+                bg: 'bg-amber-50',
+                border: 'border-amber-200',
+                text: 'text-amber-900',
+                accent: 'bg-amber-600 hover:bg-amber-700',
+                cardBg: 'bg-orange-50/50',
+                btnText: 'text-amber-800'
+            },
+            dark: {
+                bg: 'bg-slate-900',
+                border: 'border-slate-800',
+                text: 'text-slate-100',
+                accent: 'bg-indigo-600 hover:bg-indigo-700',
+                cardBg: 'bg-slate-800',
+                btnText: 'text-slate-300'
+            }
+        };
+    </script>
+
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Brand Title -->
+                <div class="flex items-center space-x-3">
+                    <div class="p-2 bg-gradient-to-tr from-emerald-500 to-teal-500 rounded-xl text-white shadow-md">
+                        <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-bold text-slate-900 tracking-tight kids-font">Aplikasi Dikte Bertahap PTK</h1>
+                        <p class="text-xs text-slate-500">Keterampilan Menulis Dikte Siswa Kelas 3 SD</p>
+                    </div>
+                </div>
+
+                <!-- Desktop Navigation Menu -->
+                <nav class="hidden md:flex space-x-1 bg-slate-100 p-1 rounded-xl">
+                    <button onclick="switchTab('proyektor')" id="tab-proyektor" class="px-4 py-2 text-sm font-medium rounded-lg flex items-center space-x-2 transition-all duration-150 shadow-sm bg-white text-slate-900">
+                        <i data-lucide="monitor-play" class="w-4 h-4"></i>
+                        <span>Mode Proyektor</span>
+                    </button>
+                    <button onclick="switchTab('kelola-kata')" id="tab-kelola-kata" class="px-4 py-2 text-sm font-medium rounded-lg flex items-center space-x-2 transition-all duration-150 text-slate-600 hover:text-slate-950">
+                        <i data-lucide="edit" class="w-4 h-4"></i>
+                        <span>Kelola Materi Dikte</span>
+                    </button>
+                    <button onclick="switchTab('penilaian')" id="tab-penilaian" class="px-4 py-2 text-sm font-medium rounded-lg flex items-center space-x-2 transition-all duration-150 text-slate-600 hover:text-slate-950">
+                        <i data-lucide="calculator" class="w-4 h-4"></i>
+                        <span>Kalkulator Rubrik</span>
+                    </button>
+                    <button onclick="switchTab('data-ptk')" id="tab-data-ptk" class="px-4 py-2 text-sm font-medium rounded-lg flex items-center space-x-2 transition-all duration-150 text-slate-600 hover:text-slate-950">
+                        <i data-lucide="database" class="w-4 h-4"></i>
+                        <span>Rekap Data Siswa (PTK)</span>
+                    </button>
+                    <button onclick="switchTab('panduan')" id="tab-panduan" class="px-4 py-2 text-sm font-medium rounded-lg flex items-center space-x-2 transition-all duration-150 text-slate-600 hover:text-slate-950">
+                        <i data-lucide="book-open" class="w-4 h-4"></i>
+                        <span>Panduan Sintaks PTK</span>
+                    </button>
+                </nav>
+
+                <!-- Status Indicator -->
+                <div class="flex items-center space-x-2">
+                    <span class="inline-flex items-center px-2.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                        <span class="w-2 h-2 mr-1.5 bg-emerald-500 rounded-full animate-ping"></span>
+                        Digital Media Active
+                    </span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Navigation Bar -->
+    <div class="md:hidden bg-white border-b border-slate-200 px-4 py-2 flex justify-between gap-1 overflow-x-auto">
+        <button onclick="switchTab('proyektor')" id="m-tab-proyektor" class="px-3 py-1.5 text-xs font-semibold rounded-lg flex flex-col items-center gap-1 min-w-[70px] bg-emerald-50 text-emerald-700">
+            <i data-lucide="monitor-play" class="w-4 h-4"></i>
+            <span>Proyektor</span>
+        </button>
+        <button onclick="switchTab('kelola-kata')" id="m-tab-kelola-kata" class="px-3 py-1.5 text-xs font-semibold rounded-lg flex flex-col items-center gap-1 min-w-[70px] text-slate-600">
+            <i data-lucide="edit" class="w-4 h-4"></i>
+            <span>Kelola</span>
+        </button>
+        <button onclick="switchTab('penilaian')" id="m-tab-penilaian" class="px-3 py-1.5 text-xs font-semibold rounded-lg flex flex-col items-center gap-1 min-w-[70px] text-slate-600">
+            <i data-lucide="calculator" class="w-4 h-4"></i>
+            <span>Rubrik</span>
+        </button>
+        <button onclick="switchTab('data-ptk')" id="m-tab-data-ptk" class="px-3 py-1.5 text-xs font-semibold rounded-lg flex flex-col items-center gap-1 min-w-[70px] text-slate-600">
+            <i data-lucide="database" class="w-4 h-4"></i>
+            <span>Data PTK</span>
+        </button>
+        <button onclick="switchTab('panduan')" id="m-tab-panduan" class="px-3 py-1.5 text-xs font-semibold rounded-lg flex flex-col items-center gap-1 min-w-[70px] text-slate-600">
+            <i data-lucide="book-open" class="w-4 h-4"></i>
+            <span>Panduan</span>
+        </button>
+    </div>
+
+    <!-- MAIN CONTENT container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <section id="view-proyektor" class="block space-y-6">
+            <!-- Selector Header & Configuration Bar -->
+            <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                <!-- Siklus & Pertemuan Selector -->
+                <div class="lg:col-span-4 flex flex-col md:flex-row gap-2">
+                    <div class="flex-1">
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">Pilih Siklus Penelitian (PTK)</label>
+                        <select id="select-siklus" onchange="changeSiklus(this.value)" class="w-full text-sm font-semibold border-slate-200 rounded-lg p-2 focus:ring-emerald-500 focus:border-emerald-500">
+                            <option value="siklus1">Siklus I - Pertemuan 1 (Dasar)</option>
+                            <option value="siklus2">Siklus II - Pertemuan 2 (Lanjut)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Tahapan Dikte Selector -->
+                <div class="lg:col-span-4">
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Pilih Tingkatan (Gradual Level)</label>
+                    <div class="grid grid-cols-3 gap-1 bg-slate-100 p-1 rounded-lg">
+                        <button onclick="changeTahap('tahap1')" id="btn-t-tahap1" class="text-xs font-semibold py-1.5 px-2 rounded-md transition-all bg-white text-emerald-800 shadow-sm">Tahap 1</button>
+                        <button onclick="changeTahap('tahap2')" id="btn-t-tahap2" class="text-xs font-semibold py-1.5 px-2 rounded-md transition-all text-slate-600">Tahap 2</button>
+                        <button onclick="changeTahap('tahap3')" id="btn-t-tahap3" class="text-xs font-semibold py-1.5 px-2 rounded-md transition-all text-slate-600">Tahap 3</button>
+                    </div>
+                </div>
+
+                <!-- Audio Speed & Themes Configuration -->
+                <div class="lg:col-span-4 flex justify-between items-center gap-4">
+                    <div class="flex-1">
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">Kecepatan Suara</label>
+                        <select id="select-speed" onchange="changeSpeed(this.value)" class="w-full text-xs font-semibold border-slate-200 rounded-lg p-2">
+                            <option value="0.45">Sangat Lambat (Siswa Lambat)</option>
+                            <option value="0.55" selected>Lambat (Ideal Kelas 3 SD)</option>
+                            <option value="0.75">Sedang (Normal)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">Tema Proyektor</label>
+                        <div class="flex gap-1.5 mt-1">
+                            <button onclick="changeTheme('mint')" class="w-6 h-6 rounded-full bg-emerald-200 border-2 border-emerald-500 focus:outline-none" title="Mint (Sejuk)"></button>
+                            <button onclick="changeTheme('sky')" class="w-6 h-6 rounded-full bg-sky-200 border-2 border-transparent hover:border-sky-400 focus:outline-none" title="Sky Blue (Tenang)"></button>
+                            <button onclick="changeTheme('cream')" class="w-6 h-6 rounded-full bg-amber-200 border-2 border-transparent hover:border-amber-400 focus:outline-none" title="Cream Warm (Fokus)"></button>
+                            <button onclick="changeTheme('dark')" class="w-6 h-6 rounded-full bg-slate-800 border-2 border-transparent hover:border-slate-600 focus:outline-none" title="High Contrast Dark"></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="projector-screen" class="bg-emerald-50 border border-emerald-200 rounded-3xl p-6 md:p-12 shadow-xl flex flex-col justify-between transition-all duration-300 min-h-[480px]">
+                
+                <!-- Screen Header: Current Step info -->
+                <div class="flex flex-wrap justify-between items-center pb-4 border-b border-dashed border-emerald-200/60 gap-2">
+                    <div>
+                        <span id="screen-meta-siklus" class="px-3 py-1 rounded-full text-xs font-bold bg-white text-emerald-800 shadow-sm border border-emerald-100 uppercase tracking-wider">SIKLUS I</span>
+                        <span id="screen-meta-tahap" class="ml-2 px-3 py-1 rounded-full text-xs font-bold bg-emerald-600 text-white shadow-sm uppercase tracking-wider">TAHAP 1: KATA TUNGGAL</span>
+                    </div>
+                    <div class="flex items-center space-x-2 text-emerald-800 font-semibold text-sm">
+                        <span id="screen-meta-index">Materi Ke-1 dari 5</span>
+                    </div>
+                </div>
+
+                <!-- Screen Body: Interactive Phases Display -->
+                <div class="flex-grow flex flex-col justify-center items-center py-10 text-center relative">
+                    
+                    <!-- Phase Indicator Badges -->
+                    <div class="flex items-center justify-center space-x-2 mb-8 bg-white/70 backdrop-blur-sm p-1.5 rounded-2xl shadow-inner border border-white/50">
+                        <div id="phase-badge-1" class="flex items-center space-x-1.5 px-4 py-1.5 rounded-xl text-xs font-bold transition-all duration-300 bg-emerald-600 text-white shadow-sm">
+                            <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px]">1</span>
+                            <span>DENGAR</span>
+                        </div>
+                        <div class="h-0.5 w-6 bg-slate-300 rounded"></div>
+                        <div id="phase-badge-2" class="flex items-center space-x-1.5 px-4 py-1.5 rounded-xl text-xs font-bold transition-all duration-300 text-slate-400">
+                            <span class="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-[10px]">2</span>
+                            <span>TULIS</span>
+                        </div>
+                        <div class="h-0.5 w-6 bg-slate-300 rounded"></div>
+                        <div id="phase-badge-3" class="flex items-center space-x-1.5 px-4 py-1.5 rounded-xl text-xs font-bold transition-all duration-300 text-slate-400">
+                            <span class="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-[10px]">3</span>
+                            <span>PERIKSA</span>
+                        </div>
+                    </div>
+
+                    <!-- Main Dynamic Content -->
+                    <div class="w-full max-w-3xl min-h-[160px] flex flex-col justify-center items-center">
+                        
+                        <!-- Content State: Empty State (If words are deleted) -->
+                        <div id="screen-state-kosong" class="hidden space-y-4">
+                            <i data-lucide="folder-open" class="w-16 h-16 text-slate-300 mx-auto"></i>
+                            <h3 class="text-xl font-bold text-slate-700 kids-font">Belum Ada Kata Dikte</h3>
+                            <p class="text-sm text-slate-500 max-w-md mx-auto">Silakan menuju tab <b class="text-emerald-700 cursor-pointer" onclick="switchTab('kelola-kata')">Kelola Materi Dikte</b> untuk menambahkan kata.</p>
+                        </div>
+
+                        <!-- Content State 1: Listening (Dengar) -->
+                        <div id="screen-state-dengar" class="block space-y-4">
+                            <div class="relative inline-block">
+                                <button onclick="playDikteAudio()" class="w-24 h-24 bg-gradient-to-tr from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center text-white hover:scale-105 active:scale-95 shadow-lg transition-all border-4 border-white">
+                                    <i data-lucide="volume-2" class="w-12 h-12 animate-pulse"></i>
+                                </button>
+                                <span id="audio-count-badge" class="absolute -top-1 -right-1 w-8 h-8 rounded-full bg-rose-500 text-white font-bold flex items-center justify-center border-2 border-white text-xs">3x</span>
+                            </div>
+                            <p class="text-emerald-800 font-bold text-lg tracking-wide kids-font mt-2">Dengarkan dengan saksama tanpa menulis terlebih dahulu!</p>
+                            <p class="text-emerald-600/80 text-sm max-w-md mx-auto">Klik tombol audio di atas. Suara akan dibacakan sebanyak 3 kali secara otomatis dengan jeda.</p>
+                        </div>
+
+                        <!-- Content State 2: Writing Timer (Tulis) -->
+                        <div id="screen-state-tulis" class="hidden space-y-4">
+                            <div class="relative w-36 h-36 flex items-center justify-center">
+                                <!-- Circular countdown spinner -->
+                                <svg class="w-full h-full transform -rotate-90">
+                                    <circle cx="72" cy="72" r="64" stroke="#e2e8f0" stroke-width="8" fill="transparent" />
+                                    <circle id="timer-progress-circle" cx="72" cy="72" r="64" stroke="#059669" stroke-width="8" fill="transparent" stroke-dasharray="402" stroke-dashoffset="0" class="transition-all duration-1000" />
+                                </svg>
+                                <div class="absolute flex flex-col items-center">
+                                    <span id="screen-timer" class="text-4xl font-extrabold text-emerald-800 kids-font">15</span>
+                                    <span class="text-[10px] font-bold text-emerald-600 tracking-wider">DETIK</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-center space-x-2 text-rose-600 font-extrabold text-2xl animate-bounce">
+                                <i data-lucide="pencil-line" class="w-7 h-7"></i>
+                                <span class="kids-font">Ayo Tulis Di Buku Dikte Kamu!</span>
+                            </div>
+                            <p class="text-emerald-700 font-medium text-sm">Gunakan pensil dengan pegangan yang benar dan rapi.</p>
+                        </div>
+
+                        <!-- Content State 3: Confirmation (Kunci Jawaban) -->
+                        <div id="screen-state-periksa" class="hidden space-y-6">
+                            <div class="bg-white rounded-2xl px-8 py-6 shadow-md border border-emerald-100 inline-block min-w-[280px]">
+                                <p class="text-xs font-bold text-emerald-600/70 tracking-widest uppercase mb-2">Tulisan yang Benar:</p>
+                                <h2 id="screen-correct-answer" class="text-4xl md:text-5xl font-extrabold text-emerald-800 kids-font tracking-wide">menyapu</h2>
+                            </div>
+                            <div class="max-w-xl bg-amber-50 rounded-xl p-4 border border-amber-200 text-left mx-auto flex items-start gap-3">
+                                <i data-lucide="info" class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5"></i>
+                                <div>
+                                    <p class="text-xs font-bold text-amber-800 uppercase">Analisis Kesalahan (Guru / Siswa):</p>
+                                    <p id="screen-target-error" class="text-sm text-slate-700 font-medium mt-1">Sering salah menulis 'meny' menjadi 'me_ny' atau 'menapu'</p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Screen Footer: Control Bar -->
+                <div class="flex flex-wrap justify-between items-center pt-4 border-t border-dashed border-emerald-200/60 gap-4">
+                    <div class="flex gap-2">
+                        <button onclick="navigateItem(-1)" class="px-4 py-2 bg-white text-emerald-800 font-semibold rounded-xl text-xs hover:bg-emerald-100 border border-emerald-200 transition duration-150 flex items-center gap-1.5 shadow-sm">
+                            <i data-lucide="chevron-left" class="w-4 h-4"></i> Kembali
+                        </button>
+                        <button onclick="navigateItem(1)" class="px-4 py-2 bg-white text-emerald-800 font-semibold rounded-xl text-xs hover:bg-emerald-100 border border-emerald-200 transition duration-150 flex items-center gap-1.5 shadow-sm">
+                            Lanjut <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+
+                    <!-- Flow controller buttons -->
+                    <div class="flex flex-wrap gap-2">
+                        <button id="flow-btn-1" onclick="setPhase(1)" class="px-4 py-2.5 rounded-xl font-bold text-xs transition shadow-md bg-emerald-600 text-white flex items-center gap-2">
+                            <i data-lucide="volume-2" class="w-4 h-4"></i> Tahap 1: Dengar (3x)
+                        </button>
+                        <button id="flow-btn-2" onclick="setPhase(2)" class="px-4 py-2.5 rounded-xl font-bold text-xs transition shadow-md bg-white text-emerald-800 hover:bg-emerald-50 border border-emerald-200 flex items-center gap-2">
+                            <i data-lucide="clock" class="w-4 h-4"></i> Tahap 2: Tulis (15s)
+                        </button>
+                        <button id="flow-btn-3" onclick="setPhase(3)" class="px-4 py-2.5 rounded-xl font-bold text-xs transition shadow-md bg-white text-emerald-800 hover:bg-emerald-50 border border-emerald-200 flex items-center gap-2">
+                            <i data-lucide="check-circle" class="w-4 h-4"></i> Tahap 3: Konfirmasi
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Custom Voice Diagnostics/Teacher Note (Appears on non-projected area) -->
+            <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center space-x-3">
+                    <div class="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                        <i data-lucide="mic" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-slate-800">Petunjuk Audio PTK:</h4>
+                        <p class="text-xs text-slate-500 max-w-2xl">Aplikasi menggunakan Web Speech API browser Anda. Pastikan suara komputer tidak dimatikan dan speaker terhubung dengan proyektor untuk suara maksimal di kelas.</p>
+                    </div>
+                </div>
+                <button onclick="testSpeaker()" class="px-3 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-bold rounded-lg transition flex items-center gap-1">
+                    <i data-lucide="megaphone" class="w-4 h-4"></i> Test Suara Speaker
+                </button>
+            </div>
+        </section>
+
+        <!-- NEW SECTION: KELOLA MATERI DIKTE -->
+        <section id="view-kelola-kata" class="hidden space-y-6">
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-100 pb-4">
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-950 kids-font">Kelola Materi & Kata Dikte</h3>
+                        <p class="text-sm text-slate-500">Sesuaikan daftar kata, frasa, dan kalimat yang akan tampil di proyektor pembelajaran.</p>
+                    </div>
+                    <button onclick="openMateriModal()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-sm">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i> Tambah Kata Baru
+                    </button>
+                </div>
+
+                <!-- Selector Inside Management View -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-150 mt-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Pilih Siklus Penelitian (PTK)</label>
+                        <select id="kelola-select-siklus" onchange="changeKelolaSiklus(this.value)" class="w-full text-sm font-semibold border-slate-200 bg-white rounded-lg p-2">
+                            <option value="siklus1">Siklus I - Pertemuan 1 (Dasar)</option>
+                            <option value="siklus2">Siklus II - Pertemuan 2 (Lanjut)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Pilih Tingkatan (Gradual Level)</label>
+                        <select id="kelola-select-tahap" onchange="changeKelolaTahap(this.value)" class="w-full text-sm font-semibold border-slate-200 bg-white rounded-lg p-2">
+                            <option value="tahap1">Tahap 1: Kata Tunggal</option>
+                            <option value="tahap2">Tahap 2: Frasa Pendek</option>
+                            <option value="tahap3">Tahap 3: Kalimat Sederhana</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Word List Table -->
+                <div class="mt-6 border border-slate-200 rounded-xl overflow-hidden">
+                    <table class="min-w-full divide-y divide-slate-200 text-sm">
+                        <thead class="bg-slate-50 text-slate-700 font-bold">
+                            <tr>
+                                <th scope="col" class="px-4 py-3 text-left w-12">No</th>
+                                <th scope="col" class="px-4 py-3 text-left w-1/4">Bunyi Dikte (Suara)</th>
+                                <th scope="col" class="px-4 py-3 text-left w-1/4">Kunci Jawaban (Layar)</th>
+                                <th scope="col" class="px-4 py-3 text-left">Catatan Analisis Kesalahan (Guru)</th>
+                                <th scope="col" class="px-4 py-3 text-center w-28">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="materi-table-body" class="divide-y divide-slate-200 bg-white">
+                            <!-- Rendered dynamically by javascript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-penilaian" class="hidden space-y-6">
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                <div class="max-w-3xl">
+                    <h3 class="text-xl font-bold text-slate-950 kids-font">Kalkulator Rubrik Penilaian Dikte</h3>
+                    <p class="text-sm text-slate-500">Hitung nilai kuantitatif siswa satu per satu berdasarkan rubrik resmi yang tercantum dalam proposal PTK Anda.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6">
+                    <!-- Rubric Interactive Selector -->
+                    <div class="lg:col-span-8 space-y-4">
+                        <!-- Parameter 1 -->
+                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-indigo-500"></span> 1. Ketepatan Ejaan (Ortografi)
+                                </h4>
+                                <span id="val-ejaan" class="text-xs font-bold bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full">Skor 4 (Sangat Baik)</span>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-2">
+                                <button onclick="setCalScore('ejaan', 4)" id="cal-ejaan-4" class="p-2 text-xs rounded-lg text-left border-2 border-indigo-500 bg-indigo-50 font-medium">
+                                    <span class="font-bold block text-indigo-800">Skor 4</span> 100% tepat tanpa ada salah huruf.
+                                </button>
+                                <button onclick="setCalScore('ejaan', 3)" id="cal-ejaan-3" class="p-2 text-xs rounded-lg text-left border-2 border-transparent bg-white hover:bg-slate-100 text-slate-600">
+                                    <span class="font-bold block text-slate-800">Skor 3</span> Ada 1-3 kesalahan ejaan suku kata.
+                                </button>
+                                <button onclick="setCalScore('ejaan', 2)" id="cal-ejaan-2" class="p-2 text-xs rounded-lg text-left border-2 border-transparent bg-white hover:bg-slate-100 text-slate-600">
+                                    <span class="font-bold block text-slate-800">Skor 2</span> Ada 4-6 kesalahan ejaan kata.
+                                </button>
+                                <button onclick="setCalScore('ejaan', 1)" id="cal-ejaan-1" class="p-2 text-xs rounded-lg text-left border-2 border-transparent bg-white hover:bg-slate-100 text-slate-600">
+                                    <span class="font-bold block text-slate-800">Skor 1</span> Lebih dari 6 kesalahan ejaan.
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Parameter 2 -->
+                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span> 2. Penggunaan Huruf Kapital
+                                </h4>
+                                <span id="val-kapital" class="text-xs font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">Skor 4 (Sangat Baik)</span>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-2">
+                                <button onclick="setCalScore('kapital', 4)" id="cal-kapital-4" class="p-2 text-xs rounded-lg text-left border-2 border-emerald-500 bg-emerald-50 font-medium">
+                                    <span class="font-bold block text-emerald-800">Skor 4</span> Kapital di awal/nama orang 100% tepat.
+                                </button>
+                                <button onclick="setCalScore('kapital', 3)" id="cal-kapital-3" class="p-2 text-xs rounded-lg text-left border-2 border-transparent bg-white hover:bg-slate-100 text-slate-600">
+                                    <span class="font-bold block text-slate-800">Skor 3</span> Ada 1-2 salah huruf kapital.
+                                </button>
+                                <button onclick="setCalScore('kapital', 2)" id="cal-kapital-2" class="p-2 text-xs rounded-lg text-left border-2 border-transparent bg-white hover:bg-slate-100 text-slate-600">
+                                    <span class="font-bold block text-slate-800">Skor 2</span> Ada 3-4 salah huruf kapital.
+                                </button>
+                                <button onclick="setCalScore('kapital', 1)" id="cal-kapital-1" class="p-2 text-xs rounded-lg text-left border-2 border-transparent bg-white hover:bg-slate-100 text-slate-600">
+                                    <span class="font-bold block text-slate-800">Skor 1</span> Mengabaikan huruf kapital sama sekali.
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Parameter 3 -->
+                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-blue-500"></span> 3. Penggunaan Tanda Baca
+                                </h4>
+                                <span id="val-tanda" class="text-xs font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">Skor 4 (Sangat Baik)</span>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-2">
+                                <button onclick="setCalScore('tanda', 4)" id="cal-tanda-4" class="p-2 text-xs rounded-lg text-left border-2 border-blue-500 bg-blue-50 font-medium">
+                                    <span class="font-bold block text-blue-800">Skor 4</span> Titik (.), tanya (?), koma (,) tepat.
+                                </button>
+                                <button onclick="setCalScore('tanda', 3)" id="cal-tanda-3" class="p-2 text-xs rounded-lg text-left border-2 border-transparent bg-white hover:bg-slate-100 text-slate-600">
+                                    <span class="font-bold block text-slate-800">Skor 3</span> Ada 1 kesalahan tanda baca.
+                                </button>
+                                <button onclick="setCalScore('tanda', 2)" id="cal-tanda-2" class="p-2 text-xs rounded-lg text-left border-2 border-transparent bg-white hover:bg-slate-100 text-slate-600">
+                                    <span class="font-bold block text-slate-800">Skor 2</span> Ada 2 kesalahan tanda baca.
+                                </button>
+                                <button onclick="setCalScore('tanda', 1)" id="cal-tanda-1" class="p-2 text-xs rounded-lg text-left border-2 border-transparent bg-white hover:bg-slate-100 text-slate-600">
+                                    <span class="font-bold block text-slate-800">Skor 1</span> Tidak menggunakan tanda baca sama sekali.
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Parameter 4 -->
+                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-amber-500"></span> 4. Kerapian & Keterbacaan Tulisan
+                                </h4>
+                                <span id="val-rapi" class="text-xs font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Skor 4 (Sangat Baik)</span>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-2">
+                                <button onclick="setCalScore('rapi', 4)" id="cal-rapi-4" class="p-2 text-xs rounded-lg text-left border-2 border-amber-500 bg-amber-50 font-medium">
+                                    <span class="font-bold block text-amber-800">Skor 4</span> Rapi, bersih, mudah dibaca di garis buku.
+                                </button>
+                                <button onclick="setCalScore('rapi', 3)" id="cal-rapi-3" class="p-2 text-xs rounded-lg text-left border-2 border-transparent bg-white hover:bg-slate-100 text-slate-600">
+                                    <span class="font-bold block text-slate-800">Skor 3</span> Cukup rapi, ada beberapa bagian sulit dibaca.
+                                </button>
+                                <button onclick="setCalScore('rapi', 2)" id="cal-rapi-2" class="p-2 text-xs rounded-lg text-left border-2 border-transparent bg-white hover:bg-slate-100 text-slate-600">
+                                    <span class="font-bold block text-slate-800">Skor 2</span> Kurang rapi, banyak coretan/bekas hapus.
+                                </button>
+                                <button onclick="setCalScore('rapi', 1)" id="cal-rapi-1" class="p-2 text-xs rounded-lg text-left border-2 border-transparent bg-white hover:bg-slate-100 text-slate-600">
+                                    <span class="font-bold block text-slate-800">Skor 1</span> Sangat tidak rapi dan sulit didekodifikasi.
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-4 space-y-4">
+                        <div class="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl p-6 text-white shadow-md sticky top-24">
+                            <h4 class="text-md font-bold uppercase tracking-wider text-teal-100">Kalkulasi Nilai Siswa</h4>
+                            
+                            <div class="mt-4 flex flex-col items-center py-6 border-b border-teal-400/40">
+                                <span class="text-sm font-semibold text-teal-100">Nilai Akhir (NA):</span>
+                                <h2 id="cal-final-score" class="text-6xl font-extrabold tracking-tight kids-font mt-1">100.00</h2>
+                                <span class="mt-2 text-xs px-2.5 py-1 bg-white/20 rounded-full font-bold uppercase tracking-wider" id="cal-predicate">TUNTAS</span>
+                            </div>
+
+                            <div class="mt-4 space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-teal-100">Total Skor Diperoleh:</span>
+                                    <span id="cal-total-score" class="font-bold">16 / 16</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-teal-100">Rumus Penilaian PTK:</span>
+                                    <span class="font-mono text-xs font-semibold bg-black/20 px-1.5 py-0.5 rounded">(Skor / 16) * 100</span>
+                                </div>
+                            </div>
+
+                            <div class="mt-6">
+                                <label class="block text-xs font-bold text-teal-100 uppercase mb-1.5">Input Nama Siswa:</label>
+                                <input type="text" id="quick-input-name" placeholder="Contoh: Andi Wijaya" class="w-full text-slate-900 border-none rounded-lg p-2 text-sm focus:ring-2 focus:ring-teal-300">
+                                <button onclick="quickSaveSiswa()" class="mt-3 w-full py-2 bg-white text-emerald-800 hover:bg-teal-50 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow">
+                                    <i data-lucide="plus" class="w-4 h-4"></i> Simpan ke Tabel Rekap PTK
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-data-ptk" class="hidden space-y-6">
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-950 kids-font">Rekapitulasi Data PTK Kelas 3</h3>
+                        <p class="text-sm text-slate-500">Bandingkan peningkatan kemampuan menulis dikte siswa dari Siklus I menuju Siklus II.</p>
+                    </div>
+                    <div class="flex gap-2 w-full md:w-auto">
+                        <button onclick="exportToCSV()" class="flex-1 md:flex-none px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 shadow">
+                            <i data-lucide="download" class="w-4 h-4"></i> Ekspor ke Excel (CSV)
+                        </button>
+                        <button onclick="openAddStudentModal()" class="flex-1 md:flex-none px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 border border-slate-200">
+                            <i data-lucide="user-plus" class="w-4 h-4"></i> Tambah Siswa
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Simple Statistics Overview Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                    <div class="p-4 bg-blue-50/50 rounded-2xl border border-blue-100">
+                        <span class="text-xs font-bold text-blue-700 uppercase tracking-wide">Rata-Rata Siklus I</span>
+                        <h3 id="stat-avg-s1" class="text-3xl font-extrabold text-blue-900 kids-font mt-1">68.75</h3>
+                        <p class="text-xs text-blue-600 mt-1">Berdasarkan hasil penilaian tindakan pertama</p>
+                    </div>
+                    <div class="p-4 bg-emerald-50/50 rounded-2xl border border-emerald-100">
+                        <span class="text-xs font-bold text-emerald-700 uppercase tracking-wide">Rata-Rata Siklus II</span>
+                        <h3 id="stat-avg-s2" class="text-3xl font-extrabold text-emerald-900 kids-font mt-1">87.50</h3>
+                        <p class="text-xs text-emerald-600 mt-1">Peningkatan setelah perbaikan metode dikte</p>
+                    </div>
+                    <div class="p-4 bg-teal-50/50 rounded-2xl border border-teal-100">
+                        <span class="text-xs font-bold text-teal-700 uppercase tracking-wide">Peningkatan Signifikan</span>
+                        <h3 id="stat-increase" class="text-3xl font-extrabold text-teal-900 kids-font mt-1">+18.75%</h3>
+                        <p class="text-xs text-teal-600 mt-1">Menunjukkan keberhasilan tindakan pembelajaran</p>
+                    </div>
+                </div>
+
+                <!-- Main Data Table -->
+                <div class="mt-6 border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-slate-200 text-sm">
+                            <thead class="bg-slate-50 text-slate-700 font-bold">
+                                <tr>
+                                    <th scope="col" class="px-4 py-3 text-left">No.</th>
+                                    <th scope="col" class="px-4 py-3 text-left">Nama Siswa</th>
+                                    <th scope="col" class="px-4 py-3 text-center bg-blue-50/50">Skor S1</th>
+                                    <th scope="col" class="px-4 py-3 text-center bg-blue-50/50">Nilai S1</th>
+                                    <th scope="col" class="px-4 py-3 text-center bg-emerald-50/50">Skor S2</th>
+                                    <th scope="col" class="px-4 py-3 text-center bg-emerald-50/50">Nilai S2</th>
+                                    <th scope="col" class="px-4 py-3 text-center">Selisih</th>
+                                    <th scope="col" class="px-4 py-3 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="student-table-body" class="divide-y divide-slate-200 bg-white">
+                                <!-- Rendered dynamically by javascript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-panduan" class="hidden space-y-6">
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm max-w-4xl mx-auto">
+                <div class="border-b border-slate-200 pb-4">
+                    <h3 class="text-xl font-bold text-slate-950 kids-font">Panduan Sintaks PTK: Dikte Bertahap Digital</h3>
+                    <p class="text-sm text-slate-500">Petunjuk praktis bagi mahasiswa PGSD dalam menerapkan aplikasi ini saat observasi dan tindakan kelas.</p>
+                </div>
+
+                <div class="mt-6 space-y-6">
+                    <!-- Step 1 Info -->
+                    <div class="flex gap-4">
+                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 text-blue-700 font-bold kids-font">1</div>
+                        <div>
+                            <h4 class="text-base font-bold text-slate-800">Persiapan Alat dan Media</h4>
+                            <p class="text-sm text-slate-600 mt-1">Sambungkan laptop Anda ke LCD Proyektor di kelas. Hubungkan kabel audio atau speaker bluetooth. Pastikan suara speaker terdengar lantang hingga baris tempat duduk paling belakang. Pastikan anak-anak telah menyiapkan buku tulis bergaris khusus dikte dan pensil.</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 2 Info -->
+                    <div class="flex gap-4">
+                        <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0 text-emerald-700 font-bold kids-font">2</div>
+                        <div>
+                            <h4 class="text-base font-bold text-slate-800">Tahap Dengar (Listening Phase)</h4>
+                            <p class="text-sm text-slate-600 mt-1">Gunakan tab <b>Mode Proyektor</b>. Pilih Siklus dan Tahap yang sesuai. Instuksikan siswa meletakkan pensil mereka terlebih dahulu. Tekan tombol audio untuk memutar suara dikte. Biarkan siswa mendengarkan artikulasi suara 3 kali berturut-turut untuk mengurangi beban memori kognitif mereka.</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 Info -->
+                    <div class="flex gap-4">
+                        <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0 text-amber-700 font-bold kids-font">3</div>
+                        <div>
+                            <h4 class="text-base font-bold text-slate-800">Tahap Menulis (Writing Phase)</h4>
+                            <p class="text-sm text-slate-600 mt-1">Klik tombol <b>Tahap 2: Tulis (15s)</b> di bawah proyektor. Timer 15 detik akan berjalan di layar proyektor dengan petunjuk "Ayo Tulis Di Buku Dikte Kamu!". Siswa mulai menulis apa yang baru saja mereka dengar di buku tulis masing-masing.</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 4 Info -->
+                    <div class="flex gap-4">
+                        <div class="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center flex-shrink-0 text-rose-700 font-bold kids-font">4</div>
+                        <div>
+                            <h4 class="text-base font-bold text-slate-800">Tahap Konfirmasi & Evaluasi Mandiri</h4>
+                            <p class="text-sm text-slate-600 mt-1">Klik tombol <b>Tahap 3: Konfirmasi</b>. Layar proyektor akan menunjukkan tulisan yang 100% tepat dengan ukuran tulisan yang sangat jelas. Siswa diminta memeriksa tulisannya sendiri secara mandiri. Bila ada kesalahan, siswa menuliskan kata pembetulan menggunakan pensil warna/bulpen merah di sebelahnya. Guru membacakan <b>Analisis Kesalahan</b> yang tertera di kotak kuning untuk memperkuat pemahaman ejaan siswa.</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 5 Info -->
+                    <div class="flex gap-4">
+                        <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0 text-indigo-700 font-bold kids-font">5</div>
+                        <div>
+                            <h4 class="text-base font-bold text-slate-800">Penginputan Hasil & Analisis Data PTK</h4>
+                            <p class="text-sm text-slate-600 mt-1">Setelah selesai kelas, Anda dapat mengumpulkan lembar kerja siswa. Gunakan tab <b>Kalkulator Rubrik</b> untuk menentukan skor per siswa secara objektif, lalu simpan ke database aplikasi di tab <b>Rekap Data Siswa (PTK)</b>. Seluruh data tersebut bisa diunduh dalam format Excel (.csv) untuk langsung dimasukkan ke bab hasil dan pembahasan skripsi PTK Anda.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 bg-slate-50 border border-slate-200 rounded-xl p-4">
+                    <h4 class="text-sm font-bold text-slate-800 flex items-center gap-1"><i data-lucide="info" class="w-4 h-4 text-emerald-600"></i> Catatan Khusus Mahasiswa Peneliti:</h4>
+                    <p class="text-xs text-slate-600 mt-1">Perbedaan Siklus I dan II dalam PTK ini berfokus pada transisi tingkat kesulitan. Di Siklus II, terdapat kluster kata yang lebih kompleks, penamaan geografi (Kota Bandung), nama hari, kata depan terpisah, dan tanda baca ekspresif seperti tanda tanya dan seru. Keberhasilan PTK dinilai dari seberapa besar persentase ketuntasan klasikal siswa yang melampaui KKM (misalnya nilai >= 75).</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- NEW MODAL: ADD/EDIT DICTATION WORD -->
+    <div id="materi-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200 mx-4">
+            <h3 id="materi-modal-title" class="text-lg font-bold text-slate-900 kids-font">Tambah Materi Baru</h3>
+            <p class="text-xs text-slate-500 mt-1">Masukkan kata, frasa, atau kalimat dikte baru untuk tindakan PTK Anda.</p>
+
+            <form id="materi-form" onsubmit="saveMateri(event)" class="mt-4 space-y-4">
+                <input type="hidden" id="edit-materi-index" value="">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Bunyi Dikte (Suara Digital)</label>
+                    <input type="text" id="modal-materi-dikte" required placeholder="Contoh: olahraga pagi" class="w-full text-sm border-slate-200 rounded-lg p-2.5 focus:ring-emerald-500 focus:border-emerald-500">
+                    <p class="text-[10px] text-slate-400 mt-1">Kata atau kalimat yang akan dibacakan oleh pengeras suara secara otomatis.</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Kunci Jawaban Tepat (Tampil Layar)</label>
+                    <input type="text" id="modal-materi-kunci" required placeholder="Contoh: Olahraga Pagi." class="w-full text-sm border-slate-200 rounded-lg p-2.5 focus:ring-emerald-500 focus:border-emerald-500">
+                    <p class="text-[10px] text-slate-400 mt-1">Tulisan yang 100% benar (perhatikan kapitalisasi dan tanda baca sesuai tingkatannya).</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Catatan Analisis Kesalahan (Panduan Guru)</label>
+                    <textarea id="modal-materi-catatan" rows="3" placeholder="Contoh: Memperhatikan penulisan vokal berurutan 'o' dan 'a'." class="w-full text-sm border-slate-200 rounded-lg p-2.5 focus:ring-emerald-500 focus:border-emerald-500"></textarea>
+                    <p class="text-[10px] text-slate-400 mt-1">Poin kesalahan umum siswa yang perlu dibahas guru ketika evaluasi.</p>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-4 border-t border-slate-150">
+                    <button type="button" onclick="closeMateriModal()" class="px-4 py-2 bg-slate-100 text-slate-700 font-semibold rounded-lg text-xs hover:bg-slate-200 transition">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-emerald-600 text-white font-semibold rounded-lg text-xs hover:bg-emerald-700 transition">Simpan Materi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit Student Modal -->
+    <div id="student-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200 mx-4">
+            <h3 id="modal-title" class="text-lg font-bold text-slate-900 kids-font">Tambah Siswa Baru</h3>
+            <p class="text-xs text-slate-500 mt-1">Tambahkan siswa ke dalam daftar observasi tindakan kelas.</p>
+
+            <form id="student-form" onsubmit="saveStudent(event)" class="mt-4 space-y-4">
+                <input type="hidden" id="edit-student-id" value="">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap Siswa</label>
+                    <input type="text" id="modal-student-name" required placeholder="Contoh: Muhammad Budi" class="w-full text-sm border-slate-200 rounded-lg p-2.5 focus:ring-emerald-500 focus:border-emerald-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-700 border-b pb-1 mb-2">Nilai Siklus I</h4>
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-bold text-slate-500">Ejaan (1-4)</label>
+                            <input type="number" id="m-s1-ejaan" min="1" max="4" value="4" class="w-full text-xs border-slate-200 rounded-lg p-1.5">
+                            
+                            <label class="block text-[10px] font-bold text-slate-500">Huruf Kapital (1-4)</label>
+                            <input type="number" id="m-s1-kapital" min="1" max="4" value="4" class="w-full text-xs border-slate-200 rounded-lg p-1.5">
+
+                            <label class="block text-[10px] font-bold text-slate-500">Tanda Baca (1-4)</label>
+                            <input type="number" id="m-s1-tanda" min="1" max="4" value="4" class="w-full text-xs border-slate-200 rounded-lg p-1.5">
+
+                            <label class="block text-[10px] font-bold text-slate-500">Kerapian (1-4)</label>
+                            <input type="number" id="m-s1-rapi" min="1" max="4" value="4" class="w-full text-xs border-slate-200 rounded-lg p-1.5">
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-700 border-b pb-1 mb-2">Nilai Siklus II</h4>
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-bold text-slate-500">Ejaan (1-4)</label>
+                            <input type="number" id="m-s2-ejaan" min="1" max="4" value="4" class="w-full text-xs border-slate-200 rounded-lg p-1.5">
+                            
+                            <label class="block text-[10px] font-bold text-slate-500">Huruf Kapital (1-4)</label>
+                            <input type="number" id="m-s2-kapital" min="1" max="4" value="4" class="w-full text-xs border-slate-200 rounded-lg p-1.5">
+
+                            <label class="block text-[10px] font-bold text-slate-500">Tanda Baca (1-4)</label>
+                            <input type="number" id="m-s2-tanda" min="1" max="4" value="4" class="w-full text-xs border-slate-200 rounded-lg p-1.5">
+
+                            <label class="block text-[10px] font-bold text-slate-500">Kerapian (1-4)</label>
+                            <input type="number" id="m-s2-rapi" min="1" max="4" value="4" class="w-full text-xs border-slate-200 rounded-lg p-1.5">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-4 border-t border-slate-150">
+                    <button type="button" onclick="closeStudentModal()" class="px-4 py-2 bg-slate-100 text-slate-700 font-semibold rounded-lg text-xs hover:bg-slate-200 transition">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-emerald-600 text-white font-semibold rounded-lg text-xs hover:bg-emerald-700 transition">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification Banner -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 bg-slate-950 text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-2 transform translate-y-24 opacity-0 transition-all duration-300">
+        <i data-lucide="info" class="w-5 h-5 text-emerald-400"></i>
+        <span id="toast-text" class="text-xs font-medium">Notifikasi sukses!</span>
+    </div>
+
+    <footer class="bg-white border-t border-slate-200 py-4 mt-12 text-center text-xs text-slate-500">
+        <p>© 2026 Aplikasi Pendukung PTK PGSD - Media Pembelajaran Digital Menulis Dikte Kelas 3</p>
+    </footer>
+
+    <script>
+        // Init Lucide Icons
+        window.onload = function () {
+            lucide.createIcons();
+            renderProyektor();
+            renderCalScore('ejaan');
+            renderCalScore('kapital');
+            renderCalScore('tanda');
+            renderCalScore('rapi');
+            updateStudentTable();
+            checkSpeechSynthesisSupport();
+            renderKelolaKataTable();
+        }
+
+        // --- TOAST NOTIFICATION UTILITY (No native alerts!) ---
+        function showToast(text, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastText = document.getElementById('toast-text');
+            toastText.textContent = text;
+            
+            // Set styles based on type
+            if (type === 'error') {
+                toast.classList.add('bg-rose-950');
+                toast.classList.remove('bg-slate-950');
+            } else {
+                toast.classList.remove('bg-rose-950');
+                toast.classList.add('bg-slate-950');
+            }
+
+            // Slide up toast
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-24', 'opacity-0');
+            }, 3000);
+        }
+
+        // --- SPEECH SYNTHESIS ENGINE ---
+        function checkSpeechSynthesisSupport() {
+            if (!('speechSynthesis' in window)) {
+                showToast("Browser Anda tidak mendukung text-to-speech. Silakan gunakan Chrome/Edge terupdate.", "error");
+            }
+        }
+
+        function playDikteAudio() {
+            const activeMateri = bankMateri[appState.siklusAktif][appState.tahapAktif].items[appState.itemIndex];
+            if (!activeMateri) {
+                showToast("Tidak ada suara yang bisa diputar. Silakan isi materi terlebih dahulu.", "error");
+                return;
+            }
+
+            const textToSpeak = activeMateri.dikte;
+            
+            // Stop existing speech
+            window.speechSynthesis.cancel();
+            
+            // Define reading repeat flow
+            let currentRepeat = 1;
+            const maxRepeats = 3;
+            document.getElementById('audio-count-badge').textContent = `${maxRepeats}x`;
+            
+            function speakIteration() {
+                if (currentRepeat > maxRepeats) {
+                    document.getElementById('audio-count-badge').textContent = `Ok`;
+                    return;
+                }
+                
+                document.getElementById('audio-count-badge').textContent = `${maxRepeats - currentRepeat + 1}x`;
+                
+                const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                utterance.lang = 'id-ID';
+                utterance.rate = appState.audioSpeed; // Lambat untuk penyesuaian kognitif anak SD
+                utterance.pitch = 1.15; // Suara ramah sedikit cempreng anak/guru perempuan
+                
+                // Fetch Indonesian Voice specifically if available
+                const voices = window.speechSynthesis.getVoices();
+                const idVoice = voices.find(v => v.lang.startsWith('id') || v.lang.includes('Indonesia'));
+                if (idVoice) utterance.voice = idVoice;
+
+                utterance.onend = () => {
+                    currentRepeat++;
+                    if (currentRepeat <= maxRepeats) {
+                        // Wait 3.5 seconds before repeating next reading (gradual timing gap)
+                        setTimeout(speakIteration, 3500);
+                    } else {
+                        document.getElementById('audio-count-badge').textContent = `Ok`;
+                        // Otomatis pindah ke Tahap 2: Tulis setelah pembacaan ke-3 selesai
+                        showToast("Pembacaan selesai. Memulai Tahap 2: Tulis!");
+                        setTimeout(() => {
+                            setPhase(2);
+                        }, 1000);
+                    }
+                }
+
+                window.speechSynthesis.speak(utterance);
+            }
+
+            speakIteration();
+            showToast(`Memutar audio dikte "${textToSpeak}" sebanyak 3 kali secara berkala.`);
+        }
+
+        function testSpeaker() {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance("Halo anak-anak hebat kelas tiga, mari bersiap belajar dikte.");
+            utterance.lang = 'id-ID';
+            utterance.rate = 0.75;
+            window.speechSynthesis.speak(utterance);
+            showToast("Memutar suara uji coba speaker proyektor.");
+        }
+
+        // --- TAB NAVIGATION ---
+        function switchTab(tabId) {
+            appState.currentTab = tabId;
+            
+            // Hide all sections
+            document.getElementById('view-proyektor').classList.add('hidden');
+            document.getElementById('view-kelola-kata').classList.add('hidden');
+            document.getElementById('view-penilaian').classList.add('hidden');
+            document.getElementById('view-data-ptk').classList.add('hidden');
+            document.getElementById('view-panduan').classList.add('hidden');
+
+            // Show active section
+            document.getElementById(`view-${tabId}`).classList.remove('hidden');
+
+            // Reset navigation tab button designs for desktop
+            const navIds = ['proyektor', 'kelola-kata', 'penilaian', 'data-ptk', 'panduan'];
+            navIds.forEach(id => {
+                const btn = document.getElementById(`tab-${id}`);
+                const mBtn = document.getElementById(`m-tab-${id}`);
+                if (id === tabId) {
+                    btn.className = "px-4 py-2 text-sm font-medium rounded-lg flex items-center space-x-2 transition-all duration-150 shadow-sm bg-white text-slate-900";
+                    mBtn.className = "px-3 py-1.5 text-xs font-semibold rounded-lg flex flex-col items-center gap-1 min-w-[70px] bg-emerald-50 text-emerald-700";
+                } else {
+                    btn.className = "px-4 py-2 text-sm font-medium rounded-lg flex items-center space-x-2 transition-all duration-150 text-slate-600 hover:text-slate-950";
+                    mBtn.className = "px-3 py-1.5 text-xs font-semibold rounded-lg flex flex-col items-center gap-1 min-w-[70px] text-slate-600";
+                }
+            });
+
+            // Specific refresh actions
+            if (tabId === 'data-ptk') {
+                updateStudentTable();
+            } else if (tabId === 'kelola-kata') {
+                // Sync dropdowns first
+                document.getElementById('kelola-select-siklus').value = appState.siklusAktif;
+                document.getElementById('kelola-select-tahap').value = appState.tahapAktif;
+                renderKelolaKataTable();
+            } else if (tabId === 'proyektor') {
+                renderProyektor();
+            }
+        }
+
+        // --- THEME CUSTOMIZER ---
+        function changeTheme(themeName) {
+            appState.currentTheme = themeName;
+            const theme = themes[themeName];
+            const screen = document.getElementById('projector-screen');
+            
+            // Reset existing colors
+            screen.className = `${theme.bg} ${theme.border} border rounded-3xl p-6 md:p-12 shadow-xl flex flex-col justify-between transition-all duration-300 min-h-[480px]`;
+            
+            // Adjust buttons & texts
+            document.getElementById('screen-meta-tahap').className = `ml-2 px-3 py-1 rounded-full text-xs font-bold ${themeName === 'dark' ? 'bg-indigo-600' : 'bg-emerald-600'} text-white shadow-sm uppercase tracking-wider`;
+            
+            showToast(`Tema layar proyektor diubah ke: ${themeName.toUpperCase()}`);
+        }
+
+        // --- PROJECTOR ENGINE ---
+        function changeSiklus(val) {
+            appState.siklusAktif = val;
+            appState.itemIndex = 0;
+            renderProyektor();
+            showToast(`Siklus PTK aktif diubah ke: ${val === 'siklus1' ? 'Siklus I' : 'Siklus II'}`);
+        }
+
+        function changeTahap(tahapId) {
+            appState.tahapAktif = tahapId;
+            appState.itemIndex = 0;
+            
+            // Update button styles
+            ['tahap1', 'tahap2', 'tahap3'].forEach(id => {
+                const btn = document.getElementById(`btn-t-${id}`);
+                if (id === tahapId) {
+                    btn.className = "text-xs font-semibold py-1.5 px-2 rounded-md transition-all bg-white text-emerald-800 shadow-sm";
+                } else {
+                    btn.className = "text-xs font-semibold py-1.5 px-2 rounded-md transition-all text-slate-600";
+                }
+            });
+
+            renderProyektor();
+        }
+
+        function changeSpeed(val) {
+            appState.audioSpeed = parseFloat(val);
+            showToast(`Kecepatan dikte disesuaikan ke ${val}`);
+        }
+
+        function navigateItem(direction) {
+            const listMateri = bankMateri[appState.siklusAktif][appState.tahapAktif].items;
+            if (listMateri.length === 0) return;
+
+            let newIndex = appState.itemIndex + direction;
+            if (newIndex >= 0 && newIndex < listMateri.length) {
+                appState.itemIndex = newIndex;
+                setPhase(1); // Back to listening phase for new items
+                renderProyektor();
+            } else {
+                showToast("Batas materi pembelajaran pada tingkat ini telah tercapai.", "error");
+            }
+        }
+
+        function setPhase(phaseNum) {
+            appState.tahapPembelajaran = phaseNum;
+            
+            // Update UI elements visibility based on phase
+            document.getElementById('screen-state-dengar').classList.add('hidden');
+            document.getElementById('screen-state-tulis').classList.add('hidden');
+            document.getElementById('screen-state-periksa').classList.add('hidden');
+            document.getElementById('screen-state-kosong').classList.add('hidden');
+            
+            // Check if current stage actually has items
+            const currentList = bankMateri[appState.siklusAktif][appState.tahapAktif].items;
+            if (currentList.length === 0) {
+                document.getElementById('screen-state-kosong').classList.remove('hidden');
+                return;
+            }
+
+            // Reset active states of control flow buttons
+            const flowButtons = ['flow-btn-1', 'flow-btn-2', 'flow-btn-3'];
+            flowButtons.forEach(btnId => {
+                const btn = document.getElementById(btnId);
+                btn.className = "px-4 py-2.5 rounded-xl font-bold text-xs transition shadow-md bg-white text-emerald-800 hover:bg-emerald-50 border border-emerald-200 flex items-center gap-2";
+                btn.classList.remove('animate-bounce', 'ring-4', 'ring-rose-300', 'bg-rose-600');
+            });
+
+            // Adjust flow button active state colors according to projector theme
+            const activeBtn = document.getElementById(`flow-btn-${phaseNum}`);
+
+            // Reset timer if exiting writing phase
+            if (phaseNum !== 2) {
+                clearInterval(appState.timerIntervalId);
+                appState.isTimerRunning = false;
+            }
+
+            if (phaseNum === 1) {
+                document.getElementById('screen-state-dengar').classList.remove('hidden');
+                activeBtn.className = "px-4 py-2.5 rounded-xl font-bold text-xs transition shadow-md bg-emerald-600 text-white flex items-center gap-2";
+                setBadgeActive(1);
+            } else if (phaseNum === 2) {
+                document.getElementById('screen-state-tulis').classList.remove('hidden');
+                activeBtn.className = "px-4 py-2.5 rounded-xl font-bold text-xs transition shadow-md bg-orange-500 text-white flex items-center gap-2";
+                setBadgeActive(2);
+                startWritingTimer();
+            } else if (phaseNum === 3) {
+                document.getElementById('screen-state-periksa').classList.remove('hidden');
+                activeBtn.className = "px-4 py-2.5 rounded-xl font-bold text-xs transition shadow-md bg-teal-600 text-white flex items-center gap-2";
+                setBadgeActive(3);
+                triggerJoyConfetti();
+            }
+        }
+
+        function setBadgeActive(activeNum) {
+            for (let i = 1; i <= 3; i++) {
+                const badge = document.getElementById(`phase-badge-${i}`);
+                if (i === activeNum) {
+                    badge.className = "flex items-center space-x-1.5 px-4 py-1.5 rounded-xl text-xs font-bold transition-all duration-300 bg-emerald-600 text-white shadow-sm";
+                } else {
+                    badge.className = "flex items-center space-x-1.5 px-4 py-1.5 rounded-xl text-xs font-bold transition-all duration-300 text-slate-400";
+                }
+            }
+        }
+
+        function startWritingTimer() {
+            clearInterval(appState.timerIntervalId);
+            appState.timerSeconds = 15;
+            appState.isTimerRunning = true;
+            
+            const timerText = document.getElementById('screen-timer');
+            timerText.className = "text-4xl font-extrabold text-emerald-800 kids-font";
+            const progressCircle = document.getElementById('timer-progress-circle');
+            
+            timerText.textContent = appState.timerSeconds;
+            progressCircle.style.strokeDashoffset = 0;
+
+            appState.timerIntervalId = setInterval(() => {
+                appState.timerSeconds--;
+                timerText.textContent = appState.timerSeconds;
+                
+                // Animate circular countdown border
+                const percentage = (15 - appState.timerSeconds) / 15;
+                const strokeOffset = percentage * 402;
+                progressCircle.style.strokeDashoffset = strokeOffset;
+
+                if (appState.timerSeconds <= 0) {
+                    clearInterval(appState.timerIntervalId);
+                    appState.isTimerRunning = false;
+                    
+                    // Tahan di layar tulis, tidak otomatis setPhase(3)
+                    timerText.textContent = "HABIS";
+                    timerText.className = "text-2xl font-extrabold text-rose-600 kids-font animate-pulse";
+                    
+                    // Buat tombol Konfirmasi berkedip merah untuk instruksi guru
+                    const btnKonfirmasi = document.getElementById('flow-btn-3');
+                    btnKonfirmasi.className = "px-4 py-2.5 rounded-xl font-bold text-xs transition shadow-md bg-rose-600 text-white flex items-center gap-2 animate-bounce ring-4 ring-rose-300";
+                    
+                    showToast("Waktu habis! Silakan guru klik tombol merah 'Tahap 3: Konfirmasi' di bawah untuk menampilkan jawaban.", "error");
+                }
+            }, 1000);
+        }
+
+        function triggerJoyConfetti() {
+            confetti({
+                particleCount: 80,
+                spread: 60,
+                origin: { y: 0.8 },
+                colors: ['#059669', '#10b981', '#34d399', '#6ee7b7']
+            });
+        }
+
+        // Render current item values in projector view elements
+        function renderProyektor() {
+            const materiList = bankMateri[appState.siklusAktif][appState.tahapAktif].items;
+            
+            // Sync selectors in proyektor
+            document.getElementById('select-siklus').value = appState.siklusAktif;
+
+            // Handle empty words list
+            if (materiList.length === 0) {
+                document.getElementById('screen-meta-siklus').textContent = appState.siklusAktif === 'siklus1' ? 'SIKLUS I' : 'SIKLUS II';
+                document.getElementById('screen-meta-tahap').textContent = bankMateri[appState.siklusAktif][appState.tahapAktif].nama;
+                document.getElementById('screen-meta-index').textContent = `Materi Kosong`;
+                setPhase(1); // will trigger empty view check
+                return;
+            }
+
+            // Adjust index if out of bound due to word deletions
+            if (appState.itemIndex >= materiList.length) {
+                appState.itemIndex = materiList.length - 1;
+            }
+            if (appState.itemIndex < 0) {
+                appState.itemIndex = 0;
+            }
+
+            const currentItem = materiList[appState.itemIndex];
+
+            // Update Metadata Texts
+            document.getElementById('screen-meta-siklus').textContent = appState.siklusAktif === 'siklus1' ? 'SIKLUS I' : 'SIKLUS II';
+            document.getElementById('screen-meta-tahap').textContent = bankMateri[appState.siklusAktif][appState.tahapAktif].nama;
+            document.getElementById('screen-meta-index').textContent = `Materi Ke-${appState.itemIndex + 1} dari ${materiList.length}`;
+            
+            // Set dynamic answers
+            document.getElementById('screen-correct-answer').textContent = currentItem.kunci;
+            document.getElementById('screen-target-error').textContent = currentItem.catatan;
+
+            // Trigger proper state display
+            setPhase(appState.tahapPembelajaran);
+        }
+
+        // --- KELOLA MATERI DIKTE LOGIC ---
+        function changeKelolaSiklus(val) {
+            appState.siklusAktif = val;
+            appState.itemIndex = 0;
+            renderKelolaKataTable();
+        }
+
+        function changeKelolaTahap(val) {
+            appState.tahapAktif = val;
+            appState.itemIndex = 0;
+            renderKelolaKataTable();
+        }
+
+        function renderKelolaKataTable() {
+            const listMateri = bankMateri[appState.siklusAktif][appState.tahapAktif].items;
+            const tbody = document.getElementById('materi-table-body');
+            tbody.innerHTML = "";
+
+            if (listMateri.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="px-4 py-8 text-center text-slate-400">
+                            <i data-lucide="info" class="w-8 h-8 mx-auto mb-2 text-slate-300"></i>
+                            Belum ada materi terdaftar untuk tingkatan ini. Silakan klik "Tambah Kata Baru" di atas.
+                        </td>
+                    </tr>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            listMateri.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition duration-150";
+                tr.innerHTML = `
+                    <td class="px-4 py-3 font-semibold text-slate-500">${index + 1}</td>
+                    <td class="px-4 py-3 font-medium text-slate-800 font-mono bg-slate-50/50">${item.dikte}</td>
+                    <td class="px-4 py-3 font-bold text-emerald-800">${item.kunci}</td>
+                    <td class="px-4 py-3 text-slate-600 text-xs">${item.catatan || '-'}</td>
+                    <td class="px-4 py-3 text-center">
+                        <div class="flex justify-center gap-1">
+                            <button onclick="openEditMateriModal(${index})" class="p-1 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded-md transition" title="Edit Kata">
+                                <i data-lucide="edit-3" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="deleteMateri(${index})" class="p-1 text-slate-500 hover:text-rose-600 hover:bg-slate-100 rounded-md transition" title="Hapus Kata">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            lucide.createIcons();
+        }
+
+        function openMateriModal() {
+            document.getElementById('materi-modal-title').textContent = "Tambah Materi Baru";
+            document.getElementById('edit-materi-index').value = "";
+            document.getElementById('materi-form').reset();
+            document.getElementById('materi-modal').classList.remove('hidden');
+        }
+
+        function openEditMateriModal(index) {
+            const item = bankMateri[appState.siklusAktif][appState.tahapAktif].items[index];
+            if (!item) return;
+
+            document.getElementById('materi-modal-title').textContent = "Edit Materi Dikte";
+            document.getElementById('edit-materi-index').value = index;
+            document.getElementById('modal-materi-dikte').value = item.dikte;
+            document.getElementById('modal-materi-kunci').value = item.kunci;
+            document.getElementById('modal-materi-catatan').value = item.catatan || "";
+            document.getElementById('materi-modal').classList.remove('hidden');
+        }
+
+        function closeMateriModal() {
+            document.getElementById('materi-modal').classList.add('hidden');
+        }
+
+        function saveMateri(e) {
+            e.preventDefault();
+            const editIndex = document.getElementById('edit-materi-index').value;
+            const dikte = document.getElementById('modal-materi-dikte').value.trim();
+            const kunci = document.getElementById('modal-materi-kunci').value.trim();
+            const catatan = document.getElementById('modal-materi-catatan').value.trim();
+
+            const items = bankMateri[appState.siklusAktif][appState.tahapAktif].items;
+
+            if (editIndex !== "") {
+                // Update existing
+                const idx = parseInt(editIndex);
+                if (items[idx]) {
+                    items[idx].dikte = dikte;
+                    items[idx].kunci = kunci;
+                    items[idx].catatan = catatan;
+                    showToast(`Materi "${dikte}" berhasil diperbarui.`);
+                }
+            } else {
+                // Add new word
+                const newNo = items.length > 0 ? Math.max(...items.map(i => i.no)) + 1 : 1;
+                items.push({
+                    no: newNo,
+                    dikte: dikte,
+                    kunci: kunci,
+                    catatan: catatan
+                });
+                showToast(`Materi baru "${dikte}" berhasil ditambahkan.`);
+            }
+
+            closeMateriModal();
+            renderKelolaKataTable();
+            renderProyektor();
+        }
+
+        function deleteMateri(index) {
+            const item = bankMateri[appState.siklusAktif][appState.tahapAktif].items[index];
+            if (!item) return;
+
+            if (confirm(`Apakah Anda yakin ingin menghapus materi dikte "${item.dikte}"?`)) {
+                bankMateri[appState.siklusAktif][appState.tahapAktif].items.splice(index, 1);
+                showToast(`Materi "${item.dikte}" telah dihapus.`, "error");
+                
+                // Adjust active index if it's pointing to a now deleted index
+                if (appState.itemIndex >= bankMateri[appState.siklusAktif][appState.tahapAktif].items.length) {
+                    appState.itemIndex = Math.max(0, bankMateri[appState.siklusAktif][appState.tahapAktif].items.length - 1);
+                }
+
+                renderKelolaKataTable();
+                renderProyektor();
+            }
+        }
+
+        // --- RUBRIC CALCULATOR ENGINE ---
+        function setCalScore(parameter, score) {
+            appState.kalkulatorInput[parameter] = score;
+            renderCalScore(parameter);
+            calculateOverallNA();
+        }
+
+        function renderCalScore(param) {
+            const activeVal = appState.kalkulatorInput[param];
+            
+            // Update value label
+            const labelMap = {
+                4: "Skor 4 (Sangat Baik)",
+                3: "Skor 3 (Baik)",
+                2: "Skor 2 (Cukup)",
+                1: "Skor 1 (Perlu Bimbingan)"
+            };
+            document.getElementById(`val-${param}`).textContent = labelMap[activeVal];
+
+            // Adjust button border visual highlights
+            for (let i = 1; i <= 4; i++) {
+                const btn = document.getElementById(`cal-${param}-${i}`);
+                if (i === activeVal) {
+                    let borderTheme = "border-emerald-500 bg-emerald-50 text-emerald-800";
+                    if (param === 'ejaan') borderTheme = "border-indigo-500 bg-indigo-50 text-indigo-800";
+                    if (param === 'tanda') borderTheme = "border-blue-500 bg-blue-50 text-blue-800";
+                    if (param === 'rapi') borderTheme = "border-amber-500 bg-amber-50 text-amber-800";
+                    
+                    btn.className = `p-2 text-xs rounded-lg text-left border-2 ${borderTheme} font-semibold transition`;
+                } else {
+                    btn.className = "p-2 text-xs rounded-lg text-left border-2 border-transparent bg-white hover:bg-slate-100 text-slate-600 transition";
+                }
+            }
+        }
+
+        function calculateOverallNA() {
+            const scores = appState.kalkulatorInput;
+            const total = scores.ejaan + scores.kapital + scores.tanda + scores.rapi;
+            
+            // Formula specified in action research document: (Skor / 16) * 100
+            const finalNa = (total / 16) * 100;
+            
+            document.getElementById('cal-total-score').textContent = `${total} / 16`;
+            document.getElementById('cal-final-score').textContent = finalNa.toFixed(2);
+            
+            // Class 3 Primary school standard KKM is typically 75
+            const predicate = document.getElementById('cal-predicate');
+            if (finalNa >= 75) {
+                predicate.textContent = "TUNTAS KKM";
+                predicate.className = "mt-2 text-xs px-2.5 py-1 bg-emerald-400 text-emerald-950 rounded-full font-bold uppercase tracking-wider animate-bounce";
+            } else {
+                predicate.textContent = "BELUM TUNTAS";
+                predicate.className = "mt-2 text-xs px-2.5 py-1 bg-amber-200 text-amber-950 rounded-full font-bold uppercase tracking-wider";
+            }
+        }
+
+        function quickSaveSiswa() {
+            const nameInput = document.getElementById('quick-input-name');
+            const nama = nameInput.value.trim();
+            if (!nama) {
+                showToast("Silakan masukkan nama siswa terlebih dahulu!", "error");
+                return;
+            }
+
+            const currentScores = {...appState.kalkulatorInput};
+            
+            // Construct default scores on S1 and S2 based on active selected cycle, to make data logging smoother
+            const newSiswa = {
+                id: Date.now(),
+                nama: nama,
+                skorS1: appState.siklusAktif === 'siklus1' ? currentScores : { ejaan: 2, kapital: 2, tanda: 2, rapi: 3 },
+                skorS2: appState.siklusAktif === 'siklus2' ? currentScores : { ejaan: 3, kapital: 3, tanda: 3, rapi: 3 }
+            };
+
+            appState.siswaList.push(newSiswa);
+            nameInput.value = ""; // clear input
+            
+            showToast(`Data nilai dikte ${nama} berhasil disimpan ke tabel rekap PTK.`);
+            updateStudentTable();
+        }
+
+        // --- PTK REKAPITULASI ENGINE ---
+        function updateStudentTable() {
+            const tbody = document.getElementById('student-table-body');
+            tbody.innerHTML = "";
+
+            let totalS1 = 0;
+            let totalS2 = 0;
+
+            appState.siswaList.forEach((siswa, index) => {
+                const s1SkorTotal = siswa.skorS1.ejaan + siswa.skorS1.kapital + siswa.skorS1.tanda + siswa.skorS1.rapi;
+                const s1Na = (s1SkorTotal / 16) * 100;
+
+                const s2SkorTotal = siswa.skorS2.ejaan + siswa.skorS2.kapital + siswa.skorS2.tanda + siswa.skorS2.rapi;
+                const s2Na = (s2SkorTotal / 16) * 100;
+
+                const delta = s2Na - s1Na;
+                const deltaClass = delta > 0 ? 'text-emerald-600 font-bold' : (delta < 0 ? 'text-rose-600 font-bold' : 'text-slate-500');
+                const deltaSymbol = delta > 0 ? `+${delta.toFixed(2)}` : `${delta.toFixed(2)}`;
+
+                totalS1 += s1Na;
+                totalS2 += s2Na;
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition duration-150";
+                tr.innerHTML = `
+                    <td class="px-4 py-3 font-semibold text-slate-500">${index + 1}</td>
+                    <td class="px-4 py-3 font-bold text-slate-800">${siswa.nama}</td>
+                    <td class="px-4 py-3 text-center bg-blue-50/20 text-xs text-slate-600 font-medium">E:${siswa.skorS1.ejaan} | K:${siswa.skorS1.kapital} | T:${siswa.skorS1.tanda} | R:${siswa.skorS1.rapi}</td>
+                    <td class="px-4 py-3 text-center font-bold bg-blue-50/40 text-blue-900">${s1Na.toFixed(1)}</td>
+                    <td class="px-4 py-3 text-center bg-emerald-50/20 text-xs text-slate-600 font-medium">E:${siswa.skorS2.ejaan} | K:${siswa.skorS2.kapital} | T:${siswa.skorS2.tanda} | R:${siswa.skorS2.rapi}</td>
+                    <td class="px-4 py-3 text-center font-bold bg-emerald-50/40 text-emerald-950">${s2Na.toFixed(1)}</td>
+                    <td class="px-4 py-3 text-center ${deltaClass}">${deltaSymbol}%</td>
+                    <td class="px-4 py-3 text-center">
+                        <div class="flex justify-center gap-1.5">
+                            <button onclick="editStudent(${siswa.id})" class="p-1 text-slate-500 hover:text-blue-600 rounded-md hover:bg-slate-100" title="Edit Data">
+                                <i data-lucide="edit-3" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="deleteStudent(${siswa.id})" class="p-1 text-slate-500 hover:text-rose-600 rounded-md hover:bg-slate-100" title="Hapus Data">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Re-render lucide icons inside generated rows
+            lucide.createIcons();
+
+            // Calculate overall averages
+            const n = appState.siswaList.length;
+            if (n > 0) {
+                const avgS1 = totalS1 / n;
+                const avgS2 = totalS2 / n;
+                const totalDiff = avgS2 - avgS1;
+
+                document.getElementById('stat-avg-s1').textContent = avgS1.toFixed(2);
+                document.getElementById('stat-avg-s2').textContent = avgS2.toFixed(2);
+                document.getElementById('stat-increase').textContent = `${totalDiff > 0 ? '+' : ''}${totalDiff.toFixed(2)}%`;
+            } else {
+                document.getElementById('stat-avg-s1').textContent = "0.00";
+                document.getElementById('stat-avg-s2').textContent = "0.00";
+                document.getElementById('stat-increase').textContent = "0.00%";
+            }
+        }
+
+        // --- ADD / EDIT STUDENT MODAL LOGIC ---
+        function openAddStudentModal() {
+            document.getElementById('modal-title').textContent = "Tambah Siswa Baru";
+            document.getElementById('edit-student-id').value = "";
+            document.getElementById('student-form').reset();
+            document.getElementById('student-modal').classList.remove('hidden');
+        }
+
+        function closeStudentModal() {
+            document.getElementById('student-modal').classList.add('hidden');
+        }
+
+        function saveStudent(e) {
+            e.preventDefault();
+            const editId = document.getElementById('edit-student-id').value;
+            const nama = document.getElementById('modal-student-name').value.trim();
+
+            const scoresS1 = {
+                ejaan: parseInt(document.getElementById('m-s1-ejaan').value) || 4,
+                kapital: parseInt(document.getElementById('m-s1-kapital').value) || 4,
+                tanda: parseInt(document.getElementById('m-s1-tanda').value) || 4,
+                rapi: parseInt(document.getElementById('m-s1-rapi').value) || 4,
+            };
+
+            const scoresS2 = {
+                ejaan: parseInt(document.getElementById('m-s2-ejaan').value) || 4,
+                kapital: parseInt(document.getElementById('m-s2-kapital').value) || 4,
+                tanda: parseInt(document.getElementById('m-s2-tanda').value) || 4,
+                rapi: parseInt(document.getElementById('m-s2-rapi').value) || 4,
+            };
+
+            if (editId) {
+                // Update existing
+                const index = appState.siswaList.findIndex(s => s.id == editId);
+                if (index !== -1) {
+                    appState.siswaList[index].nama = nama;
+                    appState.siswaList[index].skorS1 = scoresS1;
+                    appState.siswaList[index].skorS2 = scoresS2;
+                    showToast(`Siswa "${nama}" berhasil diperbarui.`);
+                }
+            } else {
+                // Add new
+                const newStudent = {
+                    id: Date.now(),
+                    nama: nama,
+                    skorS1: scoresS1,
+                    skorS2: scoresS2
+                };
+                appState.siswaList.push(newStudent);
+                showToast(`Siswa "${nama}" berhasil ditambahkan.`);
+            }
+
+            closeStudentModal();
+            updateStudentTable();
+        }
+
+        function editStudent(id) {
+            const student = appState.siswaList.find(s => s.id == id);
+            if (!student) return;
+
+            document.getElementById('modal-title').textContent = "Edit Data Siswa";
+            document.getElementById('edit-student-id').value = student.id;
+            document.getElementById('modal-student-name').value = student.nama;
+
+            // S1 values
+            document.getElementById('m-s1-ejaan').value = student.skorS1.ejaan;
+            document.getElementById('m-s1-kapital').value = student.skorS1.kapital;
+            document.getElementById('m-s1-tanda').value = student.skorS1.tanda;
+            document.getElementById('m-s1-rapi').value = student.skorS1.rapi;
+
+            // S2 values
+            document.getElementById('m-s2-ejaan').value = student.skorS2.ejaan;
+            document.getElementById('m-s2-kapital').value = student.skorS2.kapital;
+            document.getElementById('m-s2-tanda').value = student.skorS2.tanda;
+            document.getElementById('m-s2-rapi').value = student.skorS2.rapi;
+
+            document.getElementById('student-modal').classList.remove('hidden');
+        }
+
+        function deleteStudent(id) {
+            if (confirm("Apakah Anda yakin ingin menghapus data siswa ini dari rekap PTK?")) {
+                appState.siswaList = appState.siswaList.filter(s => s.id != id);
+                showToast("Siswa berhasil dihapus dari rekap PTK.", "error");
+                updateStudentTable();
+            }
+        }
+
+        // --- EXPORT TO CSV ENGINE (Excellent for Thesis/Report Writing!) ---
+        function exportToCSV() {
+            if (appState.siswaList.length === 0) {
+                showToast("Tidak ada data siswa untuk diekspor.", "error");
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,";
+            
+            // Header
+            csvContent += "No;Nama Siswa;S1_Ejaan;S1_Kapital;S1_TandaBaca;S1_Kerapian;S1_NilaiAkhir;S2_Ejaan;S2_Kapital;S2_TandaBaca;S2_Kerapian;S2_NilaiAkhir;Peningkatan(%)\r\n";
+
+            appState.siswaList.forEach((siswa, index) => {
+                const s1Total = siswa.skorS1.ejaan + siswa.skorS1.kapital + siswa.skorS1.tanda + siswa.skorS1.rapi;
+                const s1Na = (s1Total / 16) * 100;
+
+                const s2Total = siswa.skorS2.ejaan + siswa.skorS2.kapital + siswa.skorS2.tanda + siswa.skorS2.rapi;
+                const s2Na = (s2Total / 16) * 100;
+
+                const delta = s2Na - s1Na;
+
+                const row = [
+                    index + 1,
+                    `"${siswa.nama}"`,
+                    siswa.skorS1.ejaan,
+                    siswa.skorS1.kapital,
+                    siswa.skorS1.tanda,
+                    siswa.skorS1.rapi,
+                    s1Na.toFixed(2),
+                    siswa.skorS2.ejaan,
+                    siswa.skorS2.kapital,
+                    siswa.skorS2.tanda,
+                    siswa.skorS2.rapi,
+                    s2Na.toFixed(2),
+                    delta.toFixed(2)
+                ].join(";");
+                
+                csvContent += row + "\r\n";
+            });
+
+            // Trigger browser download action
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Rekap_PTK_Dikte_Bertahap_Kelas3_${Date.now()}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showToast("Berhasil mengunduh dokumen CSV rekap data PTK!");
+        }
+    </script>
+</body>
+</html>
